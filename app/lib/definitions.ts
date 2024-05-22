@@ -4,11 +4,15 @@
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type Ingredient = {
   name: string;
+}
+
+export type RecipeIngredient = {
+  name: string;
   prep: string;
 };
 
 export type Recipe = {
-  ingredients: Ingredient[]
+  ingredients: RecipeIngredient[]
   name: string,
   hints: string[]
 }

@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, GenerativeModel } from "@google/generative-ai"
 import { NextRequest, NextResponse } from "next/server";
-import { Ingredient } from "../../lib/definitions";
+import { RecipeIngredient } from "../../lib/definitions";
 
 const apiKey: string = process.env.GEMINI_API_KEY!;
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -49,7 +49,7 @@ const model: GenerativeModel = genAI.getGenerativeModel({
 export async function POST(request: NextRequest) {
 	const body = await request.json();
     let recipeMessage = ""
-    body.forEach((ingredient: Ingredient) => {
+    body.forEach((ingredient: RecipeIngredient) => {
         recipeMessage += `${ingredient.name}: ${ingredient.prep}, `
     });
 	
