@@ -4,6 +4,7 @@
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type Ingredient = {
   name: string;
+  emoji: string;
 }
 
 export type RecipeIngredient = {
