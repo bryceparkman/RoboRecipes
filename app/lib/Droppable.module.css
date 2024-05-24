@@ -1,20 +1,25 @@
 .Droppable {
-    position: relative;
-    text-align: center;
+    margin: auto;
     padding: 10px;
     border-radius: 10px;
-    box-sizing: border-box;
-    background-color: #fff;
-    box-shadow: inset rgba(120, 125, 129, 0.5) 0 0 0 2px,
-      rgba(255, 255, 255, 0) 0 0 0 1px, rgba(201, 211, 219, 0.25) 20px 14px 24px;
-    transition: box-shadow 250ms ease;
+    position: relative;
+    border: 1px solid #ddd;
+    background-color: white;
 }
 
 .over {
-      box-shadow: inset #1eb99d 0 0 0 3px, rgba(201, 211, 219, 0.5) 20px 14px 24px;
+      box-shadow:  #c5c5c5 0 0 0 3px;
 }
 
 .dropped {
-    /* box-shadow: inset rgba(201, 211, 219, 0.7) 0 0 0 3px,
-        rgba(201, 211, 219, 0.5) 20px 14px 24px; */
-}
+    content: '';
+    display: block;
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    right: -5px;
+    bottom: -5px;
+    background-color: transparent;
+    z-index: -100;
+    border-radius: 12.5px;
+  }

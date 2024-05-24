@@ -10,7 +10,7 @@ type Parents = {
     [id: UniqueIdentifier] : UniqueIdentifier
 }
 
-const ingredientCard = (emoji: string, additionalClassNames?: string, title?: string) => {
+const ingredientCard = (emoji: string, additionalClassNames: string = "", title?: string) => {
     return (
         <div title={title ? title : undefined} className={"flex justify-center px-2 py-2 text-4xl " + additionalClassNames}>
             {emoji}
@@ -23,17 +23,18 @@ export function Kitchen() {
     const [parents, setParents] = useState<Parents>({});
     const [ingredientCards] = useState(Array.from({ length: allIngredients.length}).map((_, i) => (
         <Draggable key={i+1} id={i+1}>
-            {ingredientCard(allIngredients[i].emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer ", allIngredients[i].name)}
+            {ingredientCard(allIngredients[i].emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", allIngredients[i].name)}
         </Draggable>
     )));
       
     return (
         <DndContext 
+            id="DnDContext"
             onDragStart={(e) => {
                 setActiveId(e.active.id);
             }} 
             onDragEnd={(e) => {
-                if(e.over){
+                if(e.over && !parents[e.over.id]){
                     setParents({
                         ...parents,
                         [e.over.id]: e.active.id
@@ -42,7 +43,7 @@ export function Kitchen() {
                 setActiveId(null);
           }}>
           <div className="flex items-center justify-center p-6 md:w-5/12 md:px-28 md:py-12 select-none">
-            <Droppable id={"oven"} dragging={activeId !== null}>
+            <Droppable id={"oven"}>
                     {parents["oven"] ?
                         ingredientCard(allIngredients[+parents["oven"]-1].emoji)
                     : null}
