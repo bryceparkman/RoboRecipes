@@ -10,14 +10,20 @@ type Parents = {
     [id: UniqueIdentifier] : UniqueIdentifier
 }
 
+const ingredientCard = (emoji: string, additionalClassNames?: string, title?: string) => {
+    return (
+        <div title={title ? title : undefined} className={"flex justify-center px-2 py-2 text-4xl " + additionalClassNames}>
+            {emoji}
+        </div>
+    )
+}
+
 export function Kitchen() {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [parents, setParents] = useState<Parents>({});
     const [ingredientCards] = useState(Array.from({ length: allIngredients.length}).map((_, i) => (
         <Draggable key={i+1} id={i+1}>
-            <div title={allIngredients[i].name} className="flex justify-center px-2 py-2 mx-1 my-2 cursor-pointer text-4xl hover:bg-zinc-100">
-                {allIngredients[i].emoji}
-            </div>
+            {ingredientCard(allIngredients[i].emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer ", allIngredients[i].name)}
         </Draggable>
     )));
       
@@ -38,9 +44,7 @@ export function Kitchen() {
           <div className="flex items-center justify-center p-6 md:w-5/12 md:px-28 md:py-12 select-none">
             <Droppable id={"oven"} dragging={activeId !== null}>
                     {parents["oven"] ?
-                        <div className="flex justify-center px-2 py-2 text-4xl">
-                            {allIngredients[+parents["oven"]-1].emoji}
-                        </div>
+                        ingredientCard(allIngredients[+parents["oven"]-1].emoji)
                     : null}
             </Droppable>
           </div>
@@ -51,9 +55,7 @@ export function Kitchen() {
           </div>
           <DragOverlay dropAnimation={null}>
             {activeId ? (
-                <div className="flex justify-center px-2 py-2 mx-1 my-2 cursor-pointer text-4xl">
-                    {allIngredients[+activeId-1].emoji}
-                </div>
+                ingredientCard(allIngredients[+activeId-1].emoji, "mx-1 my-2 cursor-pointer ")
           ): null}
           </DragOverlay>
         </DndContext>

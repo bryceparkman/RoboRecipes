@@ -25,7 +25,11 @@ export function Droppable({children, id}: Props) {
       )}
       aria-label="Droppable region"
     >
-      {children}
+      {children ? children :
+        <div className="flex justify-center px-2 py-2 text-4xl opacity-25">
+          ♨️
+        </div>
+      }
     </div>
   );
 }
