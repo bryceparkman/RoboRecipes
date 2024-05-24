@@ -37,7 +37,42 @@ export const allKitchenTools: KitchenToolsDict = {
         name: "Pot",
         function: "Boil",
         emoji: "🍲"
-    }
+    },
+    "Frying Pan": {
+        name: "Frying Pan",
+        function: "Pan fry",
+        emoji: "🍳"
+    },
+    "Steamer": {
+        name: "Steamer",
+        function: "Steam",
+        emoji: "💨"
+    },
+    "Deep Fryer": {
+        name: "Deep Fryer",
+        function: "Deep fry",
+        emoji: "🇺🇸"
+    },
+    "Fermentor": {
+        name: "Fermentor",
+        function: "Age",
+        emoji: "⏳"
+    },
+    "Grill": {
+        name: "Grill",
+        function: "Grill",
+        emoji: "🔥"
+    },
+    "Smoker": {
+        name: "Smoker",
+        function: "Smoke",
+        emoji: "🌫️"
+    },
+    "Crusher": {
+        name: "Crusher",
+        function: "Crush",
+        emoji: "🔨"
+    },
 }
 
 function shuffleArray(array: any[]) {

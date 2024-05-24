@@ -38,7 +38,7 @@ export function Kitchen() {
                 setActiveId(null);
             }}>
 
-          <div className="flex items-center justify-center p-6 md:w-5/12 md:px-28 md:py-12 select-none">
+          <div className="flex flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none">
             {Object.entries(allKitchenTools).map(([toolName, _], i) => (
                 <KitchenTool key={i} id={toolName} food={allIngredients[parents[toolName]]}/>
             ))}

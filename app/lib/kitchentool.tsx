@@ -37,26 +37,31 @@ export function KitchenTool({id, food}: Props) {
   }, [timeLeft, food]);
 
   return (
-    <div
-      ref={setNodeRef}
-      className={classNames(
-        styles.Droppable,
-        !food && isOver && styles.over,
-      )}
-      aria-label="Droppable region"
-    >
-      {food ?
-        <>
-          {ingredientCard(food.emoji)}
-          <div className={styles.dropped} style={{
-            backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${100*((totalTimeMs - timeLeft) / totalTimeMs)}%)`
-          }}></div>
-        </>
-        :
-        <div className="flex justify-center px-2 py-2 text-4xl opacity-25">
-          {allKitchenTools[id].emoji}
-        </div>
-      }
+    <div className='flex flex-col h-fit my-1'>
+      <div
+        ref={setNodeRef}
+        className={classNames(
+          styles.Droppable,
+          !food && isOver && styles.over,
+        )}
+        aria-label="Droppable region"
+      >
+        {food ?
+          <>
+            {ingredientCard(food.emoji)}
+            <div className={styles.dropped} style={{
+              backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${100*((totalTimeMs - timeLeft) / totalTimeMs)}%)`
+            }}></div>
+          </>
+          :
+          <div className="flex justify-center px-2 py-2 text-4xl opacity-25">
+            {allKitchenTools[id].emoji}
+          </div>
+        }
+      </div>
+      <div className="text-center">
+      {allKitchenTools[id].function}
+      </div>
     </div>
   );
 }
