@@ -13,11 +13,11 @@ export default function Page() {
     hints: []
 });
   useEffect(() => {
-    //createNewRecipe();
+    createNewRecipe();
   }, [])
 
   async function createNewRecipe(): Promise<void> {
-    const ingredientNames: string[] = getRandomIngredientNames();
+    const ingredientNames: string[] = getRandomIngredientNames(2);
 
     const res = await fetch('/api/chat', {
         method: 'POST',

@@ -40,6 +40,17 @@ export const allKitchenTools: KitchenToolsDict = {
     }
 }
 
-export function getRandomIngredientNames(): string[] {
-    return ['Tomato Sauce', 'Pepperoni', "Cooked Dough"];
+function shuffleArray(array: any[]) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+export function getRandomIngredientNames(count: number): string[] {
+    const shuffled = Object.keys(allIngredients)
+    shuffleArray(shuffled);
+    return shuffled.slice(0,count);
 }
