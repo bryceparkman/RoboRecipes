@@ -7,13 +7,22 @@ export type Ingredient = {
   emoji: string;
 }
 
-export type RecipeIngredient = {
+export type KitchenTool = {
   name: string;
-  prep: string;
-};
+  function: string;
+  emoji: string;
+}
 
 export type Recipe = {
-  ingredients: RecipeIngredient[]
+  ingredientNames: string[]
   name: string,
   hints: string[]
+}
+
+export const ingredientCard = (emoji: string, additionalClassNames: string = "", title?: string) => {
+  return (
+      <div title={title ? title : undefined} className={"flex justify-center px-2 py-2 text-4xl " + additionalClassNames}>
+          {emoji}
+      </div>
+  )
 }

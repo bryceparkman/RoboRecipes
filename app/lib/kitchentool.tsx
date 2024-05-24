@@ -4,24 +4,22 @@ import classNames from 'classnames';
 
 import styles from './Droppable.module.css';
 import { getColorFade } from './colorfade';
+import { Ingredient, ingredientCard } from './definitions';
+import { allKitchenTools } from './kitchenutils';
 
 interface Props {
-  children: React.ReactNode;
   id: UniqueIdentifier;
+  food: Ingredient;
 }
 
-export function Droppable({children, id}: Props) {
+export function KitchenTool({id, food}: Props) {
   const {isOver, setNodeRef} = useDroppable({
     id,
   });
 
   const totalTimeMs = 5000;
-
   const [timeLeft, setTimeLeft] = useState<number>(totalTimeMs);
-  
   const percentDone = 100*((totalTimeMs - timeLeft) / totalTimeMs)
-
-  
 
   useEffect(() => {
     if(timeLeft === 0){
@@ -29,34 +27,34 @@ export function Droppable({children, id}: Props) {
        setTimeLeft(-1)
     }
 
-    if (timeLeft === -1 || children === null) return;
+    if (timeLeft === -1 || !food) return;
 
     const intervalId = setInterval(() => {
       setTimeLeft(timeLeft - 10);
     }, 10);
 
     return () => clearInterval(intervalId);
-  }, [timeLeft, children]);
+  }, [timeLeft, food]);
 
   return (
     <div
       ref={setNodeRef}
       className={classNames(
         styles.Droppable,
-        !children && isOver && styles.over,
+        !food && isOver && styles.over,
       )}
       aria-label="Droppable region"
     >
-      {children ?
+      {food ?
         <>
-          {children}
+          {ingredientCard(food.emoji)}
           <div className={styles.dropped} style={{
             backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${100*((totalTimeMs - timeLeft) / totalTimeMs)}%)`
           }}></div>
         </>
         :
         <div className="flex justify-center px-2 py-2 text-4xl opacity-25">
-          ♨️
+          {allKitchenTools[id].emoji}
         </div>
       }
     </div>
