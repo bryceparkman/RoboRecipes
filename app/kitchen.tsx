@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 
-import { allIngredients, allKitchenTools } from './lib/kitchenutils';
+import { allIngredients, allKitchenTools, cookedIngredients, rawIngredients } from './lib/kitchenutils';
 import {Draggable} from './lib/draggable';
 import {KitchenTool} from './lib/kitchentool';
 import { ingredientCard, Parents, Timer, Timers } from './lib/definitions';
@@ -22,18 +22,25 @@ export function Kitchen() {
         const intervalId = setInterval(() =>
             setTimers((prevTimers) => {
                 const newTimers: Timers = {}
+                let anyActive = false;
+
                 for(const id in prevTimers){
                     const prevTimer = prevTimers[id];
-                    const remainingTime = prevTimer.total - (new Date().getTime() - prevTimer.start)
-                    if(remainingTime >= msInterval){
-                        newTimers[id] = {
-                            start: prevTimer.start,
-                            total: prevTimer.total,
-                            remaining: remainingTime
-                        }
+
+                    if(prevTimer.remaining !== 0){
+                        anyActive = true;
+                    }
+
+                    let remainingTime = prevTimer.total - (new Date().getTime() - prevTimer.start)
+                    if(remainingTime < 0) remainingTime = 0;
+
+                    newTimers[id] = {
+                        start: prevTimer.start,
+                        total: prevTimer.total,
+                        remaining: remainingTime
                     }
                 }
-                if(Object.keys(newTimers).length === 0){ 
+                if(!anyActive){ 
                     clearInterval(intervalId);
                     setIsAnyTimerActive(false);
                 }
@@ -48,11 +55,11 @@ export function Kitchen() {
     }
 
     function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number | undefined {
-        return allIngredients[foodName]['cooked'][toolName]?.time
+        return rawIngredients[foodName]['cooked'][toolName]?.time
     }
 
     //Eventually switch to unlocked ingredients, not all ingredients
-    const [ingredientCards] = useState(Object.entries(allIngredients).map(([foodName, {emoji}], i) => (
+    const [ingredientCards] = useState(Object.entries(rawIngredients).map(([foodName, {emoji}], i) => (
         <Draggable key={i} id={foodName}>
             {ingredientCard(emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", foodName)}
         </Draggable>
@@ -88,8 +95,9 @@ export function Kitchen() {
                 <KitchenTool 
                 key={i} 
                 id={toolName} 
-                food={allIngredients[parents[toolName]]} 
-                percentDone={timers[toolName] ? getPercentDoneFromTimer(timers[toolName]) : 0}/>
+                food={timers[toolName]?.remaining === 0 ? cookedIngredients['Baked mushroom'] : rawIngredients[parents[toolName]]} 
+                percentDoneFromTimer={timers[toolName] ? getPercentDoneFromTimer(timers[toolName]) : 0}
+                isDragging={activeId === cookedIngredients['Baked mushroom']?.name}/>
             ))}
           </div>
 

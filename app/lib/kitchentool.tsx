@@ -6,17 +6,47 @@ import styles from './Droppable.module.css';
 import { getColorFade } from './colorfade';
 import { Ingredient, ingredientCard } from './definitions';
 import { allKitchenTools } from './kitchenutils';
+import { Draggable } from './draggable';
 
 interface Props {
   id: UniqueIdentifier;
   food: Ingredient;
-  percentDone: number;
+  percentDoneFromTimer: number;
+  isDragging: boolean
 }
 
-export function KitchenTool({id, food, percentDone}: Props) {
+export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props) {
   const {isOver, setNodeRef} = useDroppable({
     id,
   });
+
+  const [isDone, setIsDone] = useState(false);
+
+  useEffect(() => {
+    if(percentDoneFromTimer >= 100 || isDone){     
+      setIsDone(true);
+    }
+  },[percentDoneFromTimer]);
+  
+  function getPercentDone(): number {
+    return isDone ? 100 : percentDoneFromTimer
+  }
+
+  function getFoodCard(){
+    if(isDone && !isDragging){
+      return (
+        <Draggable id={food.name}>
+          {ingredientCard(food.emoji)}
+        </Draggable>
+      )
+    }
+    else if(isDone && isDragging){
+      return <></>;
+    }
+    else {
+      return ingredientCard(food.emoji)
+    }
+  }
 
   return (
     <div className='flex flex-col h-fit my-1'>
@@ -28,11 +58,11 @@ export function KitchenTool({id, food, percentDone}: Props) {
         )}
         aria-label="Droppable region"
       >
-        {food ?
+        {food && !isDragging ?
           <>
-            {ingredientCard(food.emoji)}
+            {getFoodCard()}
             <div className={styles.dropped} style={{
-              backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${percentDone}%)`
+              backgroundImage: `conic-gradient(${getColorFade(getPercentDone())}, ${getColorFade(getPercentDone())} ${getPercentDone()}%, transparent ${getPercentDone()}%)`
             }}></div>
           </>
           :

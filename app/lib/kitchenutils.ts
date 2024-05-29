@@ -8,7 +8,7 @@ type KitchenToolsDict = {
     [toolName: string] : KitchenTool
 }
 
-export const allIngredients: IngredientsDict = {
+export const rawIngredients: IngredientsDict = {
     "Potato": {
         name: "Potato",
         emoji: "🥔",
@@ -45,6 +45,23 @@ export const allIngredients: IngredientsDict = {
             }
         }
     }
+}
+
+export const cookedIngredients: IngredientsDict = {
+    "Baked mushroom": {
+        name: "Baked mushroom",
+        emoji: "🍄",
+        cooked: {
+            "Steamer": {
+                time: 2000
+            }
+        }
+    },
+}
+
+export const allIngredients: IngredientsDict = {
+    ...rawIngredients,
+    ...cookedIngredients
 }
 
 export const allKitchenTools: KitchenToolsDict = {
