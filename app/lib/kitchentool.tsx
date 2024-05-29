@@ -10,31 +10,13 @@ import { allKitchenTools } from './kitchenutils';
 interface Props {
   id: UniqueIdentifier;
   food: Ingredient;
+  percentDone: number;
 }
 
-export function KitchenTool({id, food}: Props) {
+export function KitchenTool({id, food, percentDone}: Props) {
   const {isOver, setNodeRef} = useDroppable({
     id,
   });
-
-  const totalTimeMs = 5000;
-  const [timeLeft, setTimeLeft] = useState<number>(totalTimeMs);
-  const percentDone = 100*((totalTimeMs - timeLeft) / totalTimeMs)
-
-  useEffect(() => {
-    if(timeLeft === 0){
-       console.log("TIME LEFT IS 0");
-       setTimeLeft(-1)
-    }
-
-    if (timeLeft === -1 || !food) return;
-
-    const intervalId = setInterval(() => {
-      setTimeLeft(timeLeft - 10);
-    }, 10);
-
-    return () => clearInterval(intervalId);
-  }, [timeLeft, food]);
 
   return (
     <div className='flex flex-col h-fit my-1'>
@@ -50,7 +32,7 @@ export function KitchenTool({id, food}: Props) {
           <>
             {ingredientCard(food.emoji)}
             <div className={styles.dropped} style={{
-              backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${100*((totalTimeMs - timeLeft) / totalTimeMs)}%)`
+              backgroundImage: `conic-gradient(${getColorFade(percentDone)}, ${getColorFade(percentDone)} ${percentDone}%, transparent ${percentDone}%)`
             }}></div>
           </>
           :
@@ -60,7 +42,7 @@ export function KitchenTool({id, food}: Props) {
         }
       </div>
       <div className="text-center">
-      {allKitchenTools[id].function}
+        {allKitchenTools[id].function}
       </div>
     </div>
   );

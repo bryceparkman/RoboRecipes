@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 
@@ -11,9 +11,55 @@ type Parents = {
     [id: UniqueIdentifier] : UniqueIdentifier
 }
 
+type Timer = {
+    msTotal: number,
+    msRemaining: number
+}
+
+type Timers = {
+    [id : UniqueIdentifier]: Timer
+}
+
 export function Kitchen() {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [parents, setParents] = useState<Parents>({});
+    const [totalTimeLeft, setTotalTimeLeft] = useState(0);
+    const [timers, setTimers] = useState<Timers>({});
+
+    useEffect(() => {
+        const length = Object.keys(timers).length
+        if (totalTimeLeft === 0 || length === 0) return;
+    
+        const intervalId = setInterval(() => {
+            for(const id in timers){
+                if(timers[id].msRemaining === 0) {
+                    delete timers[id]
+                } 
+                else {
+                    timers[id].msRemaining -= 10;
+                }
+            }
+            setTotalTimeLeft(totalTimeLeft - 10);
+        }, 10);
+    
+        return () => clearInterval(intervalId);
+      }, [totalTimeLeft]);
+
+    function addTimer(id: UniqueIdentifier, timer: Timer){
+        setTimers({
+            ...timers,
+            [id]: timer
+        });
+        setTotalTimeLeft(totalTimeLeft + timer.msTotal);
+    }
+
+    function getPercentDoneFromTimer(timer: Timer){
+        return 100*((timer.msTotal - timer.msRemaining) / timer.msTotal)
+    }
+
+    function getFoodCookingByTool(toolName: string){
+        return allIngredients[parents[toolName]];
+    }
 
     //Eventually switch to unlocked ingredients, not all ingredients
     const [ingredientCards] = useState(Object.entries(allIngredients).map(([foodName, {emoji}], i) => (
@@ -30,6 +76,12 @@ export function Kitchen() {
             }} 
             onDragEnd={(e) => {
                 if(e.over && !parents[e.over.id]){
+                    addTimer(e.over.id,
+                        {
+                            msTotal: 5000,
+                            msRemaining: 5000
+                        }      
+                    )
                     setParents({
                         ...parents,
                         [e.over.id]: e.active.id
@@ -40,7 +92,11 @@ export function Kitchen() {
 
           <div className="flex flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none">
             {Object.entries(allKitchenTools).map(([toolName, _], i) => (
-                <KitchenTool key={i} id={toolName} food={allIngredients[parents[toolName]]}/>
+                <KitchenTool 
+                key={i} 
+                id={toolName} 
+                food={getFoodCookingByTool(toolName)} 
+                percentDone={timers[toolName] ? getPercentDoneFromTimer(timers[toolName]) : 0}/>
             ))}
           </div>
 
