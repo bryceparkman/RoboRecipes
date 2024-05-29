@@ -1,16 +1,38 @@
 // This file contains type definitions for your data.
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
+
+import { UniqueIdentifier } from "@dnd-kit/core";
+
 // However, these types are generated automatically if you're using an ORM such as Prisma.
 export type Ingredient = {
   name: string;
   emoji: string;
+  cooked: {
+    [tool: UniqueIdentifier]: {
+      time: number
+    }
+  }
 }
 
 export type KitchenTool = {
   name: string;
   function: string;
   emoji: string;
+}
+
+export type Parents = {
+  [id: UniqueIdentifier] : UniqueIdentifier
+}
+
+export type Timer = {
+  start: number,
+  total: number,
+  remaining: number
+}
+
+export type Timers = {
+  [id : UniqueIdentifier]: Timer
 }
 
 export type Recipe = {

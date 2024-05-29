@@ -11,19 +11,39 @@ type KitchenToolsDict = {
 export const allIngredients: IngredientsDict = {
     "Potato": {
         name: "Potato",
-        emoji: "🥔"
+        emoji: "🥔",
+        cooked: {
+            "Oven": {
+                time: 20000
+            }
+        }
     },
     "Mushroom": {
         name: "Mushroom",
-        emoji: "🍄"
+        emoji: "🍄",
+        cooked: {
+            "Oven": {
+                time: 2000
+            }
+        }
     },
     "Cheese": {
         name: "Cheese",
-        emoji: "🧀"
+        emoji: "🧀",
+        cooked: {
+            "Oven": {
+                time: 1000
+            }
+        }
     },
     "Crab": {
         name: "Crab",
-        emoji: "🦀"
+        emoji: "🦀",
+        cooked: {
+            "Oven": {
+                time: 5000
+            }
+        }
     }
 }
 

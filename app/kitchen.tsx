@@ -5,60 +5,50 @@ import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 import { allIngredients, allKitchenTools } from './lib/kitchenutils';
 import {Draggable} from './lib/draggable';
 import {KitchenTool} from './lib/kitchentool';
-import { ingredientCard } from './lib/definitions';
-
-type Parents = {
-    [id: UniqueIdentifier] : UniqueIdentifier
-}
-
-type Timer = {
-    msTotal: number,
-    msRemaining: number
-}
-
-type Timers = {
-    [id : UniqueIdentifier]: Timer
-}
+import { ingredientCard, Parents, Timer, Timers } from './lib/definitions';
 
 export function Kitchen() {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [parents, setParents] = useState<Parents>({});
-    const [totalTimeLeft, setTotalTimeLeft] = useState(0);
     const [timers, setTimers] = useState<Timers>({});
+    const msInterval = 10;
+    const [isAnyTimerActive, setIsAnyTimerActive] = useState(false)
 
+    //Use one global timer to manage all the kitchen tools. Performance issues arise if each once timed itself.
     useEffect(() => {
-        const length = Object.keys(timers).length
-        if (totalTimeLeft === 0 || length === 0) return;
-    
-        const intervalId = setInterval(() => {
-            for(const id in timers){
-                if(timers[id].msRemaining === 0) {
-                    delete timers[id]
-                } 
-                else {
-                    timers[id].msRemaining -= 10;
+        if(!isAnyTimerActive) {
+            return;
+        }
+        const intervalId = setInterval(() =>
+            setTimers((prevTimers) => {
+                const newTimers: Timers = {}
+                for(const id in prevTimers){
+                    const prevTimer = prevTimers[id];
+                    const remainingTime = prevTimer.total - (new Date().getTime() - prevTimer.start)
+                    if(remainingTime >= msInterval){
+                        newTimers[id] = {
+                            start: prevTimer.start,
+                            total: prevTimer.total,
+                            remaining: remainingTime
+                        }
+                    }
                 }
-            }
-            setTotalTimeLeft(totalTimeLeft - 10);
-        }, 10);
+                if(Object.keys(newTimers).length === 0){ 
+                    clearInterval(intervalId);
+                    setIsAnyTimerActive(false);
+                }
+                return newTimers;
+            }), msInterval);
     
         return () => clearInterval(intervalId);
-      }, [totalTimeLeft]);
-
-    function addTimer(id: UniqueIdentifier, timer: Timer){
-        setTimers({
-            ...timers,
-            [id]: timer
-        });
-        setTotalTimeLeft(totalTimeLeft + timer.msTotal);
-    }
+      }, [isAnyTimerActive]);
 
     function getPercentDoneFromTimer(timer: Timer){
-        return 100*((timer.msTotal - timer.msRemaining) / timer.msTotal)
+        return 100*((timer.total - timer.remaining) / timer.total)
     }
 
-    function getFoodCookingByTool(toolName: string){
-        return allIngredients[parents[toolName]];
+    function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number | undefined {
+        return allIngredients[foodName]['cooked'][toolName]?.time
     }
 
     //Eventually switch to unlocked ingredients, not all ingredients
@@ -76,12 +66,15 @@ export function Kitchen() {
             }} 
             onDragEnd={(e) => {
                 if(e.over && !parents[e.over.id]){
-                    addTimer(e.over.id,
-                        {
-                            msTotal: 5000,
-                            msRemaining: 5000
-                        }      
-                    )
+                    setIsAnyTimerActive(true);
+                    setTimers({
+                        ...timers,
+                        [e.over.id]: {
+                            start: new Date().getTime(),
+                            total: getCookTime(e.active.id, e.over.id) ?? 0,
+                            remaining: getCookTime(e.active.id, e.over.id) ?? 0
+                        }
+                    });
                     setParents({
                         ...parents,
                         [e.over.id]: e.active.id
@@ -95,7 +88,7 @@ export function Kitchen() {
                 <KitchenTool 
                 key={i} 
                 id={toolName} 
-                food={getFoodCookingByTool(toolName)} 
+                food={allIngredients[parents[toolName]]} 
                 percentDone={timers[toolName] ? getPercentDoneFromTimer(timers[toolName]) : 0}/>
             ))}
           </div>
