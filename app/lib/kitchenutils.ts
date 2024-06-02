@@ -95,7 +95,12 @@ export const allIngredients: IngredientsDict = {
     "Baked mushroom": {
         name: "Baked mushroom",
         emoji: "🍄",
-        cooked: {}
+        cooked: {
+            "Steamer": {
+                time: 5000,
+                result: "Mushroom"
+            }
+        }
     },
 }
 export const allKitchenTools: KitchenToolsDict = {

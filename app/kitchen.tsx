@@ -22,7 +22,7 @@ export function Kitchen() {
     const [isAnyTimerActive, setIsAnyTimerActive] = useState(false);
     const msInterval = 10;
 
-    const [ingredientCards] = useState(Object.entries(unlockedIngredients).map(([foodName, {emoji}], i) => (
+    const [fridgeCards] = useState(Object.entries(unlockedIngredients).map(([foodName, {emoji}], i) => (
         <Draggable key={i} id={`${foodName}_fridge`}>
             {ingredientCard(emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", foodName)}
         </Draggable>
@@ -41,7 +41,7 @@ export function Kitchen() {
         return intialValue
     });
 
-    const [timers, setTimers] = useState<Timers>(() => {
+    const [timers, setTimers] = useState<Timers>((() => {
         const intialValue: Timers = {};
         for(const key in allKitchenTools){
             const tool: Tool = allKitchenTools[key]
@@ -52,11 +52,7 @@ export function Kitchen() {
             }
         }
         return intialValue
-    })
-
-    function getPercentDoneFromTimer(timer: Timer){
-        return 100*((timer.total - timer.remaining) / timer.total)
-    }
+    }))
 
     function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number{
         return allIngredients[foodName]['cooked'][toolName].time
@@ -80,7 +76,7 @@ export function Kitchen() {
         for(const id in timers){
             if(toolsData[id].food === null || toolsData[id].cooked) continue
 
-            const percentDone = getPercentDoneFromTimer(timers[id])
+            const percentDone = 100*((timers[id].total - timers[id].remaining) / timers[id].total)
             const food = (percentDone !== 100 && !toolsData[id].cooked) ? toolsData[id].food : getCookResult(toolsData[id].food!!.name, id)
             setToolsData({
                 ...toolsData,
@@ -149,6 +145,11 @@ export function Kitchen() {
                     });
                     setToolsData({
                         ...toolsData,
+                        [e.active.id.toString().split("_")[1]]: {
+                            food: null,
+                            cooked: false,
+                            percentDone: 0
+                        },
                         [e.over.id]: {
                             food: allIngredients[getFoodName(e.active.id)],
                             cooked: false,
@@ -167,13 +168,13 @@ export function Kitchen() {
                     id={toolName} 
                     food={toolsData[toolName].food} 
                     percentDoneFromTimer={toolsData[toolName].percentDone}
-                    isDragging={false}/>
+                    isDragging={toolsData[toolName].food ? activeId === `${toolsData[toolName].food?.name}_${toolName}`: false}/>
             ))}
           </div>
 
           <div className="flex text-gray-800 md:w-3/12 outline outline-1 outline-zinc-400">
             <div className="flex flex-row flex-wrap mt-2 ml-2 h-min w-full justify-left select-none">
-              {ingredientCards}
+              {fridgeCards}
             </div>
           </div>
           <DragOverlay dropAnimation={null}>

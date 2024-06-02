@@ -19,28 +19,20 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
   const {isOver, setNodeRef} = useDroppable({
     id,
   });
-
-  const [isDone, setIsDone] = useState(false);
-
-  useEffect(() => {
-    if(percentDoneFromTimer >= 100 || isDone){     
-      setIsDone(true);
-    }
-  },[percentDoneFromTimer]);
   
-  function getPercentDone(): number {
-    return isDone ? 100 : percentDoneFromTimer
+  function isDone(): boolean {
+    return percentDoneFromTimer >= 100;
   }
 
   function getFoodCard(){
-    if(isDone && !isDragging){
+    if(isDone() && !isDragging){
       return (
-        <Draggable id={`${food!!.name}_tools`}>
+        <Draggable id={`${food!!.name}_${id}`}>
           {ingredientCard(food!!.emoji)}
         </Draggable>
       )
     }
-    else if(isDone && isDragging){
+    else if(isDone() && isDragging){
       return <></>;
     }
     else {
@@ -62,7 +54,7 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
           <>
             {getFoodCard()}
             <div className={styles.dropped} style={{
-              backgroundImage: `conic-gradient(${getColorFade(getPercentDone())}, ${getColorFade(getPercentDone())} ${getPercentDone()}%, transparent ${getPercentDone()}%)`
+              backgroundImage: `conic-gradient(${getColorFade(percentDoneFromTimer)}, ${getColorFade(percentDoneFromTimer)} ${percentDoneFromTimer}%, transparent ${percentDoneFromTimer}%)`
             }}></div>
           </>
           :
