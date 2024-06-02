@@ -10,12 +10,13 @@ export type Ingredient = {
   emoji: string;
   cooked: {
     [tool: UniqueIdentifier]: {
-      time: number
+      time: number,
+      result: UniqueIdentifier
     }
   }
 }
 
-export type KitchenTool = {
+export type Tool = {
   name: string;
   function: string;
   emoji: string;

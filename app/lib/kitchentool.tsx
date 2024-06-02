@@ -10,7 +10,7 @@ import { Draggable } from './draggable';
 
 interface Props {
   id: UniqueIdentifier;
-  food: Ingredient;
+  food: Ingredient | null;
   percentDoneFromTimer: number;
   isDragging: boolean
 }
@@ -35,8 +35,8 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
   function getFoodCard(){
     if(isDone && !isDragging){
       return (
-        <Draggable id={food.name}>
-          {ingredientCard(food.emoji)}
+        <Draggable id={`${food!!.name}_tools`}>
+          {ingredientCard(food!!.emoji)}
         </Draggable>
       )
     }
@@ -44,7 +44,7 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
       return <></>;
     }
     else {
-      return ingredientCard(food.emoji)
+      return ingredientCard(food!!.emoji)
     }
   }
 

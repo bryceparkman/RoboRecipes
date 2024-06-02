@@ -2,20 +2,100 @@ import { useEffect, useState } from 'react';
 
 import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 
-import { allIngredients, allKitchenTools, cookedIngredients, rawIngredients } from './lib/kitchenutils';
+import { allIngredients, allKitchenTools, unlockedIngredients } from './lib/kitchenutils';
 import {Draggable} from './lib/draggable';
 import {KitchenTool} from './lib/kitchentool';
-import { ingredientCard, Parents, Timer, Timers } from './lib/definitions';
+import { Ingredient, ingredientCard, Tool, Parents, Timer, Timers } from './lib/definitions';
+
+type ToolData = {
+    food: Ingredient | null,
+    percentDone: number,
+    cooked: boolean
+}
+
+type ToolsData = {
+    [id: UniqueIdentifier]: ToolData
+}
 
 export function Kitchen() {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-    const [parents, setParents] = useState<Parents>({});
-    const [timers, setTimers] = useState<Timers>({});
+    const [isAnyTimerActive, setIsAnyTimerActive] = useState(false);
     const msInterval = 10;
-    const [isAnyTimerActive, setIsAnyTimerActive] = useState(false)
 
-    //Use one global timer to manage all the kitchen tools. Performance issues arise if each once timed itself.
+    const [ingredientCards] = useState(Object.entries(unlockedIngredients).map(([foodName, {emoji}], i) => (
+        <Draggable key={i} id={`${foodName}_fridge`}>
+            {ingredientCard(emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", foodName)}
+        </Draggable>
+    )));
+
+    const [toolsData, setToolsData] = useState<ToolsData>(() => {
+        const intialValue: ToolsData = {};
+        for(const key in allKitchenTools){
+            const tool: Tool = allKitchenTools[key]
+            intialValue[tool.name] = {
+                food: null,
+                cooked: false,
+                percentDone: 0
+            }
+        }
+        return intialValue
+    });
+
+    const [timers, setTimers] = useState<Timers>(() => {
+        const intialValue: Timers = {};
+        for(const key in allKitchenTools){
+            const tool: Tool = allKitchenTools[key]
+            intialValue[tool.name] = {
+                start: 0,
+                total: 0,
+                remaining: 0
+            }
+        }
+        return intialValue
+    })
+
+    function getPercentDoneFromTimer(timer: Timer){
+        return 100*((timer.total - timer.remaining) / timer.total)
+    }
+
+    function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number{
+        return allIngredients[foodName]['cooked'][toolName].time
+    }
+
+    //This assumes the food can be cooked in that tool
+    function getCookResult(foodName: UniqueIdentifier, toolName: UniqueIdentifier): Ingredient {
+        return allIngredients[allIngredients[foodName]['cooked'][toolName].result]
+    }
+
+    function canCookFoodInTool(foodName: UniqueIdentifier, toolName: UniqueIdentifier): boolean {
+        return allIngredients[foodName]['cooked'][toolName] !== undefined
+    }
+
+    function getFoodName(id: UniqueIdentifier){
+        return id.toString().split('_')[0]
+    }
+
+    
     useEffect(() => {
+        for(const id in timers){
+            if(toolsData[id].food === null || toolsData[id].cooked) continue
+
+            const percentDone = getPercentDoneFromTimer(timers[id])
+            const food = (percentDone !== 100 && !toolsData[id].cooked) ? toolsData[id].food : getCookResult(toolsData[id].food!!.name, id)
+            setToolsData({
+                ...toolsData,
+                [id]: {
+                    ...toolsData[id],
+                    food,
+                    cooked: percentDone === 100,
+                    percentDone
+                }
+            })
+        }
+      }, [timers]);
+
+      //Use one global timer to manage all the kitchen tools. Performance issues arise if each once timed itself.
+      useEffect(() => {
         if(!isAnyTimerActive) {
             return;
         }
@@ -31,13 +111,13 @@ export function Kitchen() {
                         anyActive = true;
                     }
 
-                    let remainingTime = prevTimer.total - (new Date().getTime() - prevTimer.start)
-                    if(remainingTime < 0) remainingTime = 0;
+                    let remaining = prevTimer.total - (new Date().getTime() - prevTimer.start)
+                    if(remaining < 0) remaining = 0;
 
                     newTimers[id] = {
                         start: prevTimer.start,
                         total: prevTimer.total,
-                        remaining: remainingTime
+                        remaining
                     }
                 }
                 if(!anyActive){ 
@@ -50,21 +130,6 @@ export function Kitchen() {
         return () => clearInterval(intervalId);
       }, [isAnyTimerActive]);
 
-    function getPercentDoneFromTimer(timer: Timer){
-        return 100*((timer.total - timer.remaining) / timer.total)
-    }
-
-    function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number | undefined {
-        return rawIngredients[foodName]['cooked'][toolName]?.time
-    }
-
-    //Eventually switch to unlocked ingredients, not all ingredients
-    const [ingredientCards] = useState(Object.entries(rawIngredients).map(([foodName, {emoji}], i) => (
-        <Draggable key={i} id={foodName}>
-            {ingredientCard(emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", foodName)}
-        </Draggable>
-    )));
-      
     return (
         <DndContext 
             id="DndContext"
@@ -72,20 +137,25 @@ export function Kitchen() {
                 setActiveId(e.active.id);
             }} 
             onDragEnd={(e) => {
-                if(e.over && !parents[e.over.id]){
+                if(e.over && (toolsData[e.over.id].food === null) && (canCookFoodInTool(getFoodName(e.active.id), e.over.id))){
                     setIsAnyTimerActive(true);
                     setTimers({
                         ...timers,
                         [e.over.id]: {
                             start: new Date().getTime(),
-                            total: getCookTime(e.active.id, e.over.id) ?? 0,
-                            remaining: getCookTime(e.active.id, e.over.id) ?? 0
+                            total: getCookTime(getFoodName(e.active.id), e.over.id),
+                            remaining: getCookTime(getFoodName(e.active.id), e.over.id)
                         }
                     });
-                    setParents({
-                        ...parents,
-                        [e.over.id]: e.active.id
+                    setToolsData({
+                        ...toolsData,
+                        [e.over.id]: {
+                            food: allIngredients[getFoodName(e.active.id)],
+                            cooked: false,
+                            percentDone: 0,
+                        }
                     })
+                    
                 }
                 setActiveId(null);
             }}>
@@ -93,11 +163,11 @@ export function Kitchen() {
           <div className="flex flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none">
             {Object.entries(allKitchenTools).map(([toolName, _], i) => (
                 <KitchenTool 
-                key={i} 
-                id={toolName} 
-                food={timers[toolName]?.remaining === 0 ? cookedIngredients['Baked mushroom'] : rawIngredients[parents[toolName]]} 
-                percentDoneFromTimer={timers[toolName] ? getPercentDoneFromTimer(timers[toolName]) : 0}
-                isDragging={activeId === cookedIngredients['Baked mushroom']?.name}/>
+                    key={i} 
+                    id={toolName} 
+                    food={toolsData[toolName].food} 
+                    percentDoneFromTimer={toolsData[toolName].percentDone}
+                    isDragging={false}/>
             ))}
           </div>
 
@@ -108,7 +178,7 @@ export function Kitchen() {
           </div>
           <DragOverlay dropAnimation={null}>
             {activeId ? (
-                ingredientCard(allIngredients[activeId].emoji, "mx-1 my-2 cursor-pointer ")
+                ingredientCard(allIngredients[getFoodName(activeId)].emoji, "mx-1 my-2 cursor-pointer ")
           ): null}
           </DragOverlay>
         </DndContext>

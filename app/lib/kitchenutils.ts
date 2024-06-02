@@ -1,20 +1,21 @@
-import { Ingredient, KitchenTool } from "./definitions"
+import { Ingredient, Tool } from "./definitions"
 
 type IngredientsDict = {
     [foodName: string] : Ingredient
 }
 
 type KitchenToolsDict = {
-    [toolName: string] : KitchenTool
+    [toolName: string] : Tool
 }
 
-export const rawIngredients: IngredientsDict = {
+export const unlockedIngredients: IngredientsDict = {
     "Potato": {
         name: "Potato",
         emoji: "🥔",
         cooked: {
             "Oven": {
-                time: 20000
+                time: 20000,
+                result: "Baked mushroom"
             }
         }
     },
@@ -23,7 +24,8 @@ export const rawIngredients: IngredientsDict = {
         emoji: "🍄",
         cooked: {
             "Oven": {
-                time: 2000
+                time: 2000,
+                result: "Baked mushroom"
             }
         }
     },
@@ -32,7 +34,8 @@ export const rawIngredients: IngredientsDict = {
         emoji: "🧀",
         cooked: {
             "Oven": {
-                time: 1000
+                time: 1000,
+                result: "Baked mushroom"
             }
         }
     },
@@ -41,29 +44,60 @@ export const rawIngredients: IngredientsDict = {
         emoji: "🦀",
         cooked: {
             "Oven": {
-                time: 5000
+                time: 5000,
+                result: "Baked mushroom"
             }
         }
     }
 }
 
-export const cookedIngredients: IngredientsDict = {
-    "Baked mushroom": {
-        name: "Baked mushroom",
-        emoji: "🍄",
+export const allIngredients: IngredientsDict = {
+    "Potato": {
+        name: "Potato",
+        emoji: "🥔",
         cooked: {
-            "Steamer": {
-                time: 2000
+            "Oven": {
+                time: 20000,
+                result: "Baked mushroom"
             }
         }
     },
+    "Mushroom": {
+        name: "Mushroom",
+        emoji: "🍄",
+        cooked: {
+            "Oven": {
+                time: 2000,
+                result: "Baked mushroom"
+            }
+        }
+    },
+    "Cheese": {
+        name: "Cheese",
+        emoji: "🧀",
+        cooked: {
+            "Oven": {
+                time: 1000,
+                result: "Baked mushroom"
+            }
+        }
+    },
+    "Crab": {
+        name: "Crab",
+        emoji: "🦀",
+        cooked: {
+            "Oven": {
+                time: 5000,
+                result: "Baked mushroom"
+            }
+        }
+    },
+    "Baked mushroom": {
+        name: "Baked mushroom",
+        emoji: "🍄",
+        cooked: {}
+    },
 }
-
-export const allIngredients: IngredientsDict = {
-    ...rawIngredients,
-    ...cookedIngredients
-}
-
 export const allKitchenTools: KitchenToolsDict = {
     "Oven": {
         name: "Oven",
