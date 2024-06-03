@@ -54,7 +54,7 @@ export function Kitchen() {
     }
 
     function canCookFoodInTool(foodName: UniqueIdentifier, toolName: UniqueIdentifier): boolean {
-        if(allIngredients[foodName]['cooked'] === null) return false
+        if(allIngredients[foodName]['cooked'] === undefined) return false
         return allIngredients[foodName]['cooked']!![toolName] !== undefined
     }
 
