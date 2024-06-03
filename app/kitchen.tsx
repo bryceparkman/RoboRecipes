@@ -161,7 +161,7 @@ export function Kitchen() {
                 setActiveId(null);
             }}>
 
-          <div className="flex flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none">
+          <div className="flex grow flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none mt-2">
             {Object.entries(allKitchenTools).map(([toolName, _], i) => (
                 <KitchenTool 
                     key={i} 
