@@ -5,26 +5,16 @@ import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 import { allIngredients, allKitchenTools, unlockedIngredients } from './lib/kitchenutils';
 import {Draggable} from './lib/draggable';
 import {KitchenTool} from './lib/kitchentool';
-import { Ingredient, ingredientCard, Tool, Parents, Timer, Timers } from './lib/definitions';
-
-type ToolData = {
-    food: Ingredient | null,
-    percentDone: number,
-    cooked: boolean
-}
-
-type ToolsData = {
-    [id: UniqueIdentifier]: ToolData
-}
+import { Ingredient, ingredientCard, Tool, ToolData, ToolsData, Timers } from './lib/definitions';
 
 export function Kitchen() {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [isAnyTimerActive, setIsAnyTimerActive] = useState(false);
     const msInterval = 10;
 
-    const [fridgeCards] = useState(Object.entries(unlockedIngredients).map(([foodName, {emoji}], i) => (
+    const [fridgeCards] = useState(Object.entries(unlockedIngredients).map(([foodName, _], i) => (
         <Draggable key={i} id={`${foodName}_fridge`}>
-            {ingredientCard(emoji, "hover:bg-zinc-100 mx-1 my-2 cursor-pointer", foodName)}
+            {ingredientCard(unlockedIngredients[foodName], "hover:bg-zinc-100 mx-1 my-2 cursor-pointer")}
         </Draggable>
     )));
 
@@ -55,16 +45,17 @@ export function Kitchen() {
     }))
 
     function getCookTime(foodName: UniqueIdentifier, toolName: UniqueIdentifier): number{
-        return allIngredients[foodName]['cooked'][toolName].time
+        return allIngredients[foodName]['cooked']!![toolName].time
     }
 
     //This assumes the food can be cooked in that tool
     function getCookResult(foodName: UniqueIdentifier, toolName: UniqueIdentifier): Ingredient {
-        return allIngredients[allIngredients[foodName]['cooked'][toolName].result]
+        return allIngredients[allIngredients[foodName]['cooked']!![toolName].result]
     }
 
     function canCookFoodInTool(foodName: UniqueIdentifier, toolName: UniqueIdentifier): boolean {
-        return allIngredients[foodName]['cooked'][toolName] !== undefined
+        if(allIngredients[foodName]['cooked'] === null) return false
+        return allIngredients[foodName]['cooked']!![toolName] !== undefined
     }
 
     function getFoodName(id: UniqueIdentifier){
@@ -127,7 +118,7 @@ export function Kitchen() {
       }, [isAnyTimerActive]);
 
     return (
-        <DndContext 
+        <DndContext
             id="DndContext"
             onDragStart={(e) => {
                 setActiveId(e.active.id);
@@ -179,7 +170,7 @@ export function Kitchen() {
           </div>
           <DragOverlay dropAnimation={null}>
             {activeId ? (
-                ingredientCard(allIngredients[getFoodName(activeId)].emoji, "mx-1 my-2 cursor-pointer ")
+                ingredientCard(allIngredients[getFoodName(activeId)], "cursor-pointer ")
           ): null}
           </DragOverlay>
         </DndContext>

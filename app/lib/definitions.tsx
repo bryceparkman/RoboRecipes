@@ -8,7 +8,8 @@ import { UniqueIdentifier } from "@dnd-kit/core";
 export type Ingredient = {
   name: string;
   emoji: string;
-  cooked: {
+  emblem?: string;
+  cooked?: {
     [tool: UniqueIdentifier]: {
       time: number,
       result: UniqueIdentifier
@@ -20,6 +21,16 @@ export type Tool = {
   name: string;
   function: string;
   emoji: string;
+}
+
+export type ToolData = {
+  food: Ingredient | null,
+  percentDone: number,
+  cooked: boolean
+}
+
+export type ToolsData = {
+  [id: UniqueIdentifier]: ToolData
 }
 
 export type Parents = {
@@ -42,10 +53,15 @@ export type Recipe = {
   hints: string[]
 }
 
-export const ingredientCard = (emoji: string, additionalClassNames: string = "", title?: string) => {
+export const ingredientCard = (ingredient: Ingredient, additionalClassNames: string = "") => {
   return (
-      <div title={title ? title : undefined} className={"flex justify-center px-2 py-2 text-4xl " + additionalClassNames}>
-          {emoji}
-      </div>
+      <div title={ingredient.name} className={"flex justify-center px-2 py-2 text-4xl " + additionalClassNames + (ingredient.emblem ? " ml-7" : "")}>
+          {ingredient.emoji}
+          {ingredient.emblem ? 
+            <div className="flex relative text-xl top-5 right-6">
+              {ingredient.emblem}
+            </div> : null
+          }
+      </div>  
   )
 }

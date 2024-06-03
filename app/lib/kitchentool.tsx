@@ -28,7 +28,7 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
     if(isDone() && !isDragging){
       return (
         <Draggable id={`${food!!.name}_${id}`}>
-          {ingredientCard(food!!.emoji)}
+          {ingredientCard(food!!)}
         </Draggable>
       )
     }
@@ -36,7 +36,7 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
       return <></>;
     }
     else {
-      return ingredientCard(food!!.emoji)
+      return ingredientCard(food!!)
     }
   }
 

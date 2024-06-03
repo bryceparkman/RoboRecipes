@@ -8,17 +8,34 @@ type KitchenToolsDict = {
     [toolName: string] : Tool
 }
 
-export const unlockedIngredients: IngredientsDict = {
+const potato = {
     "Potato": {
         name: "Potato",
         emoji: "🥔",
         cooked: {
             "Oven": {
+                time: 25000,
+                result: "Baked potato"
+            },
+            "Pot": {
                 time: 20000,
-                result: "Baked mushroom"
+                result: "Boiled potato"
             }
         }
     },
+    "Baked potato": {
+        name: "Baked potato",
+        emoji: "🥔",
+        emblem: "♨️"
+    },
+    "Boiled potato": {
+        name: "Boiled potato",
+        emoji: "🥔",
+        emblem: "🍲"
+    },
+}
+
+const mushroom = {
     "Mushroom": {
         name: "Mushroom",
         emoji: "🍄",
@@ -29,6 +46,16 @@ export const unlockedIngredients: IngredientsDict = {
             }
         }
     },
+    "Baked mushroom": {
+        name: "Baked mushroom",
+        emoji: "🍄",
+        emblem: "♨️"
+    },
+}
+
+export const allIngredients: IngredientsDict = {
+    ...potato,
+    ...mushroom,
     "Cheese": {
         name: "Cheese",
         emoji: "🧀",
@@ -51,27 +78,8 @@ export const unlockedIngredients: IngredientsDict = {
     }
 }
 
-export const allIngredients: IngredientsDict = {
-    "Potato": {
-        name: "Potato",
-        emoji: "🥔",
-        cooked: {
-            "Oven": {
-                time: 20000,
-                result: "Baked mushroom"
-            }
-        }
-    },
-    "Mushroom": {
-        name: "Mushroom",
-        emoji: "🍄",
-        cooked: {
-            "Oven": {
-                time: 2000,
-                result: "Baked mushroom"
-            }
-        }
-    },
+//Temporary
+export const unlockedIngredients: IngredientsDict = {
     "Cheese": {
         name: "Cheese",
         emoji: "🧀",
@@ -92,17 +100,28 @@ export const allIngredients: IngredientsDict = {
             }
         }
     },
-    "Baked mushroom": {
-        name: "Baked mushroom",
+    "Mushroom": {
+        name: "Mushroom",
         emoji: "🍄",
         cooked: {
-            "Steamer": {
-                time: 5000,
-                result: "Mushroom"
+            "Oven": {
+                time: 2000,
+                result: "Baked mushroom"
+            }
+        }
+    },
+    "Potato": {
+        name: "Potato",
+        emoji: "🥔",
+        cooked: {
+            "Oven": {
+                time: 20000,
+                result: "Baked potato"
             }
         }
     },
 }
+
 export const allKitchenTools: KitchenToolsDict = {
     "Oven": {
         name: "Oven",
