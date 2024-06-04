@@ -18,6 +18,16 @@ export function Kitchen({recipe}: Props) {
     const msInterval = 10;
     const numCombiners = 5;
 
+    function getResetCombiners(): CombinersData {
+        const data: CombinersData = {};
+        for(let i=0;i<numCombiners;i++){
+            data[`combine_${i}`] = {
+                food: null,
+            }
+        }
+        return data;
+    }
+
     const [fridgeCards] = useState(Object.entries(unlockedIngredients).map(([foodName, _], i) => (
         <Draggable key={i} id={`${foodName}_fridge`}>
             {ingredientCard(unlockedIngredients[foodName], "hover:bg-zinc-100 mx-1 my-2 cursor-pointer")}
@@ -37,15 +47,7 @@ export function Kitchen({recipe}: Props) {
         return intialValue
     });
 
-    const [combinersData, setCombinersData] = useState<CombinersData>(() => {
-        const intialValue: CombinersData = {};
-        for(let i=0;i<numCombiners;i++){
-            intialValue[`combine_${i}`] = {
-                food: null,
-            }
-        }
-        return intialValue
-    });
+    const [combinersData, setCombinersData] = useState<CombinersData>(getResetCombiners);
 
     const [timers, setTimers] = useState<Timers>((() => {
         const intialValue: Timers = {};
@@ -111,14 +113,7 @@ export function Kitchen({recipe}: Props) {
             }
         }
 
-        const intialValue: CombinersData = {};
-        for(let i=0;i<numCombiners;i++){
-            intialValue[`combine_${i}`] = {
-                food: null,
-            }
-        }
-
-        setCombinersData(intialValue)
+        setCombinersData(getResetCombiners())
 
         alert(success);
     }
