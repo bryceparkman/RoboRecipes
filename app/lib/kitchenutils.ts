@@ -40,9 +40,9 @@ const mushroom = {
         name: "Mushroom",
         emoji: "🍄",
         cooked: {
-            "Oven": {
+            "Frying Pan": {
                 time: 2000,
-                result: "Baked mushroom"
+                result: "Sautéed mushroom"
             }
         }
     },
@@ -50,6 +50,11 @@ const mushroom = {
         name: "Baked mushroom",
         emoji: "🍄",
         emblem: "♨️"
+    },
+    "Sautéed mushroom": {
+        name: "Sautéed mushroom",
+        emoji: "🍄",
+        emblem: "🍳"
     },
 }
 

@@ -19,20 +19,22 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
   const {isOver, setNodeRef} = useDroppable({
     id,
   });
-  
-  function isDone(): boolean {
-    return percentDoneFromTimer >= 100;
-  }
+
+  const [isDone, setIsDone] = useState(false);
+
+  useEffect(() => {
+    setIsDone(percentDoneFromTimer >= 100)
+  }, [percentDoneFromTimer])
 
   function getFoodCard(){
-    if(isDone() && !isDragging){
+    if(isDone && !isDragging){
       return (
         <Draggable id={`${food!!.name}_${id}`}>
           {ingredientCard(food!!)}
         </Draggable>
       )
     }
-    else if(isDone() && isDragging){
+    else if(isDone && isDragging){
       return <></>;
     }
     else {

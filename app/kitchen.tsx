@@ -74,7 +74,15 @@ export function Kitchen({recipe}: Props) {
     }
 
     function canDropFood(foodName: UniqueIdentifier, droppableName: UniqueIdentifier): boolean {
-        if(isCombiner(droppableName)) return combinersData[droppableName].food === null;
+        if(isCombiner(droppableName)){
+            if(combinersData[droppableName].food !== null) return false;
+            for(let i=0;i<numCombiners;i++){
+                if(combinersData[`combine_${i}`].food?.name === foodName){
+                    return false;
+                }
+            }
+            return true;
+        } 
 
         if(toolsData[droppableName].food !== null) return false;
         if(allIngredients[foodName]['cooked'] === undefined) return false;
@@ -102,26 +110,36 @@ export function Kitchen({recipe}: Props) {
                 recipeCopy.splice(idx, 1)
             }
         }
-        alert(success)
+
+        const intialValue: CombinersData = {};
+        for(let i=0;i<numCombiners;i++){
+            intialValue[`combine_${i}`] = {
+                food: null,
+            }
+        }
+
+        setCombinersData(intialValue)
+
+        alert(success);
     }
 
     
     useEffect(() => {
-        for(const id in timers){
-            if(toolsData[id].food === null || toolsData[id].cooked) continue
-
-            const percentDone = 100*((timers[id].total - timers[id].remaining) / timers[id].total)
-            const food = (percentDone !== 100 && !toolsData[id].cooked) ? toolsData[id].food : getCookResult(toolsData[id].food!!.name, id)
-            setToolsData({
-                ...toolsData,
-                [id]: {
-                    ...toolsData[id],
-                    food,
-                    cooked: percentDone === 100,
-                    percentDone
+        setToolsData((prevToolsData) => {
+            const newToolsData: ToolsData = {...prevToolsData}
+            for(const id in timers){
+                if(prevToolsData[id].food === null || prevToolsData[id].cooked) continue
+    
+                const percentDone = 100*((timers[id].total - timers[id].remaining) / timers[id].total)
+                const food = (percentDone !== 100 && !prevToolsData[id].cooked) ? prevToolsData[id].food : getCookResult(prevToolsData[id].food!!.name, id)
+                newToolsData[id] = {
+                        food,
+                        cooked: percentDone === 100,
+                        percentDone
+                    }
                 }
-            })
-        }
+            return newToolsData
+        })
       }, [timers]);
 
       //Use one global timer to manage all the kitchen tools. Performance issues arise if each once timed itself.
