@@ -45,7 +45,7 @@ export function KitchenTool({id, food, percentDoneFromTimer, isDragging}: Props)
       <div
         ref={setNodeRef}
         className={classNames(
-          styles.Droppable,
+          styles.ToolDroppable,
           !food && isOver && styles.over,
         )}
         aria-label="Droppable region"

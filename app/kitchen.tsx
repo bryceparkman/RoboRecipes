@@ -5,12 +5,18 @@ import { DndContext, DragOverlay, UniqueIdentifier } from '@dnd-kit/core';
 import { allIngredients, allKitchenTools, unlockedIngredients } from './lib/kitchenutils';
 import {Draggable} from './lib/draggable';
 import {KitchenTool} from './lib/kitchentool';
-import { Ingredient, ingredientCard, Tool, ToolData, ToolsData, Timers } from './lib/definitions';
+import { Ingredient, ingredientCard, Tool, ToolData, ToolsData, Timers, Recipe, CombinersData } from './lib/definitions';
+import { KitchenCombine } from './lib/kitchencombine';
 
-export function Kitchen() {
+interface Props {
+    recipe: Recipe
+  }
+
+export function Kitchen({recipe}: Props) {
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [isAnyTimerActive, setIsAnyTimerActive] = useState(false);
     const msInterval = 10;
+    const numCombiners = 5;
 
     const [fridgeCards] = useState(Object.entries(unlockedIngredients).map(([foodName, _], i) => (
         <Draggable key={i} id={`${foodName}_fridge`}>
@@ -26,6 +32,16 @@ export function Kitchen() {
                 food: null,
                 cooked: false,
                 percentDone: 0
+            }
+        }
+        return intialValue
+    });
+
+    const [combinersData, setCombinersData] = useState<CombinersData>(() => {
+        const intialValue: CombinersData = {};
+        for(let i=0;i<numCombiners;i++){
+            intialValue[`combine_${i}`] = {
+                food: null,
             }
         }
         return intialValue
@@ -53,13 +69,40 @@ export function Kitchen() {
         return allIngredients[allIngredients[foodName]['cooked']!![toolName].result]
     }
 
-    function canCookFoodInTool(foodName: UniqueIdentifier, toolName: UniqueIdentifier): boolean {
-        if(allIngredients[foodName]['cooked'] === undefined) return false
-        return allIngredients[foodName]['cooked']!![toolName] !== undefined
+    function isCombiner(droppableName: UniqueIdentifier): boolean {
+        return droppableName.toString().includes("combine");
+    }
+
+    function canDropFood(foodName: UniqueIdentifier, droppableName: UniqueIdentifier): boolean {
+        if(isCombiner(droppableName)) return combinersData[droppableName].food === null;
+
+        if(toolsData[droppableName].food !== null) return false;
+        if(allIngredients[foodName]['cooked'] === undefined) return false;
+        
+        return allIngredients[foodName]['cooked']!![droppableName] !== undefined
     }
 
     function getFoodName(id: UniqueIdentifier){
         return id.toString().split('_')[0]
+    }
+
+    function combineAndServe(){
+        let success = true;
+        const recipeCopy = [...recipe.ingredientNames];
+
+        for(const id in combinersData){
+            const food = combinersData[id].food;
+            if(food === null) continue;
+            const idx = recipeCopy.indexOf(food.name);
+            if(idx === -1) {
+                success = false;
+                break;
+            }
+            if(idx !== -1){
+                recipeCopy.splice(idx, 1)
+            }
+        }
+        alert(success)
     }
 
     
@@ -124,33 +167,68 @@ export function Kitchen() {
                 setActiveId(e.active.id);
             }} 
             onDragEnd={(e) => {
-                if(e.over && (toolsData[e.over.id].food === null) && (canCookFoodInTool(getFoodName(e.active.id), e.over.id))){
-                    setIsAnyTimerActive(true);
-                    setTimers({
-                        ...timers,
-                        [e.over.id]: {
-                            start: new Date().getTime(),
-                            total: getCookTime(getFoodName(e.active.id), e.over.id),
-                            remaining: getCookTime(getFoodName(e.active.id), e.over.id)
-                        }
-                    });
-                    setToolsData({
-                        ...toolsData,
-                        [e.active.id.toString().split("_")[1]]: {
-                            food: null,
-                            cooked: false,
-                            percentDone: 0
-                        },
-                        [e.over.id]: {
-                            food: allIngredients[getFoodName(e.active.id)],
-                            cooked: false,
-                            percentDone: 0,
-                        }
-                    })
-                    
+                if(e.over && canDropFood(getFoodName(e.active.id), e.over.id)){
+                    if(isCombiner(e.over.id)){
+                        setCombinersData({
+                            ...combinersData,
+                            [e.over.id]: {
+                                food: allIngredients[getFoodName(e.active.id)]
+                            }
+                        })
+                        setToolsData({
+                            ...toolsData,
+                            [e.active.id.toString().split("_")[1]]: {
+                                food: null,
+                                cooked: false,
+                                percentDone: 0
+                            }
+                        })
+                    }
+                    else {
+                        setIsAnyTimerActive(true);
+                        setTimers({
+                            ...timers,
+                            [e.over.id]: {
+                                start: new Date().getTime(),
+                                total: getCookTime(getFoodName(e.active.id), e.over.id),
+                                remaining: getCookTime(getFoodName(e.active.id), e.over.id)
+                            }
+                        });
+                        setToolsData({
+                            ...toolsData,
+                            [e.active.id.toString().split("_")[1]]: {
+                                food: null,
+                                cooked: false,
+                                percentDone: 0
+                            },
+                            [e.over.id]: {
+                                food: allIngredients[getFoodName(e.active.id)],
+                                cooked: false,
+                                percentDone: 0,
+                            }
+                        })
+                    }       
                 }
                 setActiveId(null);
             }}>
+
+            <div className="flex flex-wrap justify-center rounded-lg bg-gray-100 px-6 py-10 md:w-4/12">
+                <p className="text-xl text-gray-800 md:text-3xl md:leading-normal w-full ml-2 content-center text-center">
+                    <strong>{recipe.name}</strong> please!
+                </p>
+                <div className="flex flex-row flex-wrap ml-2 mt-10 h-min select-none justify-center ">
+                    {[...Array(numCombiners)].map((_, i) =>
+                        <KitchenCombine 
+                            key={i}
+                            id={`combine_${i}`}
+                            food={combinersData[`combine_${i}`].food}/>
+                    )}
+                </div>
+                <div className="flex items-center self-start rounded-lg bg-blue-500 px-3 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400 md:text-base cursor-pointer"
+                    onClick={combineAndServe}>
+                    Combine and Serve!
+                </div>
+            </div>
 
           <div className="flex grow flex-wrap justify-center content-start md:w-5/12 md:py-4 select-none mt-2">
             {Object.entries(allKitchenTools).map(([toolName, _], i) => (

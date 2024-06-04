@@ -1,8 +1,18 @@
-.Droppable {
+.ToolDroppable {
     margin: 0 15px;
     padding: 10px;
     border-radius: 10px;
     width: 90px;
+    position: relative;
+    border: 1px solid #ddd;
+    background-color: white;
+}
+
+.CombinerDroppable {
+    margin: 0 5px;
+    padding: 10px;
+    border-radius: 10px;
+    width: 80px;
     position: relative;
     border: 1px solid #ddd;
     background-color: white;

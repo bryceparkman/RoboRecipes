@@ -33,6 +33,14 @@ export type ToolsData = {
   [id: UniqueIdentifier]: ToolData
 }
 
+export type CombinerData = {
+  food: Ingredient | null
+}
+
+export type CombinersData = {
+  [id: UniqueIdentifier]: CombinerData
+}
+
 export type Parents = {
   [id: UniqueIdentifier] : UniqueIdentifier
 }
